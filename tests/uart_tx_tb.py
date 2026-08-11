@@ -77,8 +77,8 @@ async def uart_tx_tb(dut):
             expected_bit = (test_bitstream >> n) & 1    # Extract nth LSB
             await RisingEdge(dut.clk)
             assert dut.TX.value == expected_bit, (
-            f"expected TX = {expected_bit}, got TX = {dut.TX.value}"
-        )
+                f"expected TX = {expected_bit}, got TX = {dut.TX.value}"
+            )
             assert dut.tx_ready.value == 0, (
                 f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
             )
@@ -104,8 +104,8 @@ async def uart_tx_tb(dut):
 
     await RisingEdge(dut.clk)
     assert dut.tx_ready.value == 0, (
-            f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY is deasserted, handshake successful
-        )
+        f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY is deasserted, handshake successful
+    )
     dut.tx_valid.value = 0                              # Only now deassert VALID (AXI handshake rules)
 
     # Now test_bitstream_2 transmission is initiating
@@ -125,8 +125,8 @@ async def uart_tx_tb(dut):
             expected_bit = (test_bitstream_2 >> n) & 1    # Extract nth LSB
             await RisingEdge(dut.clk)
             assert dut.TX.value == expected_bit, (
-            f"expected TX = {expected_bit}, got TX = {dut.TX.value}"
-        )
+                f"expected TX = {expected_bit}, got TX = {dut.TX.value}"
+            )
             assert dut.tx_ready.value == 0, (
                 f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
             )
