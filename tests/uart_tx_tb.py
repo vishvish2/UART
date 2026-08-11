@@ -100,4 +100,52 @@ async def uart_tx_tb(dut):
     )
     assert dut.tx_ready.value == 1, (
         f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
+    )                                                                   # READY and VALID are 1 simultaneously again
+
+    await RisingEdge(dut.clk)
+    assert dut.tx_ready.value == 0, (
+            f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY is deasserted, handshake successful
+        )
+    dut.tx_valid.value = 0                              # Only now deassert VALID (AXI handshake rules)
+
+    # Now test_bitstream_2 transmission is initiating
+    # UART state should be START, transitions to 0 for one bit period (period between each baud tick)
+    for _ in range(baud_max_count - 1):                 # -1 because one clock cycle used for testing handshake
+        await RisingEdge(dut.clk)
+        assert dut.TX.value == 0, (
+            f"expected TX = 0, got TX = {dut.TX.value}"
+        )
+        assert dut.tx_ready.value == 0, (
+            f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"  # READY should remain deasserted
+        )
+
+    # UART state should be DATA, compare TX against data, LSB transmits first
+    for n in range(data_width):
+        for _ in range(baud_max_count):                 # Bits transmit at each baud tick
+            expected_bit = (test_bitstream_2 >> n) & 1    # Extract nth LSB
+            await RisingEdge(dut.clk)
+            assert dut.TX.value == expected_bit, (
+            f"expected TX = {expected_bit}, got TX = {dut.TX.value}"
+        )
+            assert dut.tx_ready.value == 0, (
+                f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
+            )
+
+    # UART state should now be STOP for one bit period
+    for _ in range(baud_max_count):
+        await RisingEdge(dut.clk)
+        assert dut.TX.value == 1, (
+            f"expected TX = 1, got TX = {dut.TX.value}"
+        )
+        assert dut.tx_ready.value == 0, (
+            f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
+        )
+
+    # UART state should return to IDLE, TX line held high and READY asserted
+    await RisingEdge(dut.clk)
+    assert dut.TX.value == 1, (
+        f"expected TX = 1, got TX = {dut.TX.value}"
+    )
+    assert dut.tx_ready.value == 1, (
+        f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
     )
