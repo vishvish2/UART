@@ -9,10 +9,10 @@ async def uart_tx_tb(dut):
     # 100MHz clock
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
 
-    # Data width
+    # Data width, number of bits in the data being transmitted
     data_width = int(dut.DATA_WIDTH.value)
 
-    # Baud count max value
+    # Baud count max value to keep track of baud ticks
     baud_max_count = int(dut.BAUD_MAX_COUNT.value)
 
     # Assert reset for few clock cycles
@@ -56,7 +56,7 @@ async def uart_tx_tb(dut):
         )
     dut.tx_valid.value = 0                              # Only now deassert VALID (AXI handshake rules)
 
-    # UART state should be START, transitions to 0 for one bit period
+    # UART state should be START, transitions to 0 for one bit period (period between each baud tick)
     for _ in range(baud_max_count - 1):                 # -1 because one clock cycle used for testing handshake
         await RisingEdge(dut.clk)
         assert dut.TX.value == 0, (
@@ -68,7 +68,7 @@ async def uart_tx_tb(dut):
 
     # UART state should be DATA, compare TX against data, LSB transmits first
     for n in range(data_width):
-        for _ in range(baud_max_count):
+        for _ in range(baud_max_count):                 # Bits transmit at each baud tick
             expected_bit = (test_bitstream >> n) & 1    # Extract nth LSB
             await RisingEdge(dut.clk)
             assert dut.TX.value == expected_bit, (
@@ -95,5 +95,5 @@ async def uart_tx_tb(dut):
             f"expected TX = 1, got TX = {dut.TX.value}"
         )
         assert dut.tx_ready.value == 1, (
-            f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"
+            f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
         )
