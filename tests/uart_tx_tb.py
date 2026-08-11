@@ -142,10 +142,11 @@ async def uart_tx_tb(dut):
         )
 
     # UART state should return to IDLE, TX line held high and READY asserted
-    await RisingEdge(dut.clk)
-    assert dut.TX.value == 1, (
-        f"expected TX = 1, got TX = {dut.TX.value}"
-    )
-    assert dut.tx_ready.value == 1, (
-        f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
-    )
+    for _ in range((data_width * baud_max_count)):  # number of clock cycles equal to data width
+        await RisingEdge(dut.clk)
+        assert dut.TX.value == 1, (
+            f"expected TX = 1, got TX = {dut.TX.value}"
+        )
+        assert dut.tx_ready.value == 1, (
+            f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
+        )
