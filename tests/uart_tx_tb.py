@@ -1,6 +1,6 @@
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge
+from cocotb.triggers import RisingEdge, FallingEdge
 
 
 @cocotb.test()
@@ -66,6 +66,11 @@ async def uart_tx_tb(dut):
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"  # READY should remain deasserted
         )
 
+    # This should be ignored until after IDLE state is reached again
+    test_bitstream_2 = 0b01001110
+    dut.data.value = test_bitstream_2
+    dut.tx_valid.value = 1
+
     # UART state should be DATA, compare TX against data, LSB transmits first
     for n in range(data_width):
         for _ in range(baud_max_count):                 # Bits transmit at each baud tick
@@ -89,11 +94,10 @@ async def uart_tx_tb(dut):
         )
 
     # UART state should return to IDLE, TX line held high and READY asserted
-    for _ in range((data_width * baud_max_count)):  # number of clock cycles equal to data width
-        await RisingEdge(dut.clk)
-        assert dut.TX.value == 1, (
-            f"expected TX = 1, got TX = {dut.TX.value}"
-        )
-        assert dut.tx_ready.value == 1, (
-            f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
-        )
+    await RisingEdge(dut.clk)
+    assert dut.TX.value == 1, (
+        f"expected TX = 1, got TX = {dut.TX.value}"
+    )
+    assert dut.tx_ready.value == 1, (
+        f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
+    )
