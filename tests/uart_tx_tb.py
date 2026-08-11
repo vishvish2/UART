@@ -34,7 +34,7 @@ async def uart_tx_tb(dut):
         )
 
     # Test byte
-    test_bitstream = 0b01011011
+    test_bitstream = 0b10010101
     dut.data.value = test_bitstream
 
     # VALID not asserted, TX line should still be held high
@@ -50,7 +50,7 @@ async def uart_tx_tb(dut):
     assert dut.tx_ready.value == 1, (
             f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # VALID and READY are 1 simultaneously
         )
-    await RisingEdge(dut.clk)                           # Hold VALID high
+    await RisingEdge(dut.clk)                           # Hold VALID high for one clock cycle
     assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY is deasserted, handshake successful
         )
