@@ -135,9 +135,35 @@ async def uart_rx_tb(dut):
     await RisingEdge(dut.clk)   # rx_valid_temp gets recognised
     await RisingEdge(dut.clk)   # rx_valid updated on next rising edge
     assert dut.rx_valid.value == 1, (
-            f"expected rx_valid = 1, got rx_valid = {dut.rx_valid.value}"
-        )
+        f"expected rx_valid = 1, got rx_valid = {dut.rx_valid.value}"
+    )
+    assert dut.frame_err.value == 0, (
+        f"expected data = 0, got data = {dut.frame_err.value}"
+    )
 
     assert dut.data.value == test_bitstream, (
         f"expected data = {test_bitstream}, got data = {dut.data.value}"
+    )
+
+    # Should return to IDLE
+    assert dut.curr_state.value == UartState.IDLE, (
+        f"expected curr_state = {UartState.IDLE}, got curr_state = {dut.curr_state.value}"
+    )
+
+    # Assert READY in AXI Stream interface
+    dut.rx_ready.value = 1
+    await RisingEdge(dut.clk)   # READY gets recognised
+    await RisingEdge(dut.clk)   # Rising edge after handshake occurs
+
+    # VALID should deassert after handshake
+    assert dut.rx_valid_temp.value == 0, (
+        f"expected rx_valid_temp = 0, got rx_valid_temp = {dut.rx_valid_temp.value}"
+    )
+    assert dut.rx_valid.value == 0, (
+        f"expected rx_valid = 0, got rx_valid = {dut.rx_valid.value}"
+    )
+
+    # State should remain IDLE
+    assert dut.curr_state.value == UartState.IDLE, (
+        f"expected curr_state = {UartState.IDLE}, got curr_state = {dut.curr_state.value}"
     )
