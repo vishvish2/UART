@@ -49,7 +49,7 @@ always @(posedge clk)
 
         end
         else begin
-            if (tx_valid & tx_ready_temp) begin
+            if (tx_valid & tx_ready) begin
                 tx_data_temp <= data;
 
             end
@@ -172,8 +172,7 @@ always @(posedge clk)
 
     end
 
-assign tx_ready_temp = (curr_state == IDLE) ? 1'b1 : 1'b0;
-assign tx_ready = tx_ready_temp;
+assign tx_ready = (curr_state == IDLE) ? 1'b1 : 1'b0;
 assign TX = tx_temp;
 
 endmodule
