@@ -32,6 +32,9 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 1, (
             f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"
         )
+        assert dut.curr_state.value == 0b00, (
+            f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
+        )
 
     # Test byte
     test_bitstream = 0b10010101
@@ -42,6 +45,12 @@ async def uart_tx_tb(dut):
         await RisingEdge(dut.clk)
         assert dut.TX.value == 1, (
             f"expected TX = 1, got TX = {dut.TX.value}"
+        )
+        assert dut.tx_ready.value == 1, (
+            f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"
+        )
+        assert dut.curr_state.value == 0b00, (
+            f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
         )
 
     # Assert AXI VALID signal for one clock cycle
@@ -65,6 +74,9 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"  # READY should remain deasserted
         )
+        assert dut.curr_state.value == 0b01, (
+            f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
+        )
 
     # This should be ignored until after IDLE state is reached again
     test_bitstream_2 = 0b01001110
@@ -82,6 +94,9 @@ async def uart_tx_tb(dut):
             assert dut.tx_ready.value == 0, (
                 f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
             )
+            assert dut.curr_state.value == 0b10, (
+                f"expected curr_state = 10, got tx_ready = {dut.curr_state.value}"
+            )
 
     # UART state should now be STOP for one bit period
     for _ in range(baud_max_count):
@@ -92,6 +107,9 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
         )
+        assert dut.curr_state.value == 0b11, (
+            f"expected curr_state = 11, got tx_ready = {dut.curr_state.value}"
+        )
 
     # UART state should return to IDLE, TX line held high and READY asserted
     await RisingEdge(dut.clk)
@@ -100,6 +118,9 @@ async def uart_tx_tb(dut):
     )
     assert dut.tx_ready.value == 1, (
         f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
+    )
+    assert dut.curr_state.value == 0b00, (
+        f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
     )                                                                   # READY and VALID are 1 simultaneously again
 
     await RisingEdge(dut.clk)
@@ -118,6 +139,9 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"  # READY should remain deasserted
         )
+        assert dut.curr_state.value == 0b01, (
+            f"expected curr_state = 01, got tx_ready = {dut.curr_state.value}"
+        )                                                                   # READY and VALID are 1 simultaneously again
 
     # UART state should be DATA, compare TX against data, LSB transmits first
     for n in range(data_width):
@@ -130,6 +154,9 @@ async def uart_tx_tb(dut):
             assert dut.tx_ready.value == 0, (
                 f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
             )
+            assert dut.curr_state.value == 0b10, (
+                f"expected curr_state = 10, got tx_ready = {dut.curr_state.value}"
+            ) 
 
     # UART state should now be STOP for one bit period
     for _ in range(baud_max_count):
@@ -140,6 +167,9 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
         )
+        assert dut.curr_state.value == 0b11, (
+            f"expected curr_state = 11, got tx_ready = {dut.curr_state.value}"
+        ) 
 
     # UART state should return to IDLE, TX line held high and READY asserted
     for _ in range((data_width * baud_max_count)):  # number of clock cycles equal to data width
@@ -150,3 +180,6 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 1, (
             f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
         )
+        assert dut.curr_state.value == 0b00, (
+            f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
+        ) 
