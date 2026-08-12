@@ -14,7 +14,6 @@ module uart_tx
     );
 
 // Temporary values
-logic tx_ready_temp;
 logic [DATA_WIDTH-1:0] tx_data_temp;
 logic tx_temp = 1'b0;
 
