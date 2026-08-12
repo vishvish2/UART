@@ -45,12 +45,11 @@ always @(posedge clk)
     begin
         if(rst) begin
             tx_data_temp <= '0;
-
         end
+
         else begin
             if (tx_valid & tx_ready) begin
                 tx_data_temp <= data;
-
             end
         end
     end
@@ -77,7 +76,6 @@ always @(posedge clk)
         if(rst) begin
             data_count <= '0;
             data_shift_reg <= '0;
-
         end
 
         else if (baud_tick) begin
@@ -85,8 +83,8 @@ always @(posedge clk)
             if (curr_state != next_state) begin
                 data_count <= '0;
                 data_shift_reg <= tx_data_temp;
-
             end
+
             else begin
                 // Shift the shift register
                 data_count <= data_count + 'd1;
@@ -128,7 +126,6 @@ always @(*)
                 begin
                     if (end_data & baud_tick) begin
                         next_state = STOP;
-
                     end
 
                     else begin
