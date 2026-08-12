@@ -41,7 +41,8 @@ logic end_data;
 // Shift register for storing data to transmit
 logic [DATA_WIDTH-1:0] data_shift_reg;
 
-always @(posedge clk)
+// AXI Stream Interface
+always_ff @(posedge clk)
     begin
         if(rst) begin
             tx_data_temp <= '0;
