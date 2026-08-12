@@ -5,12 +5,12 @@ module uart_tx
         parameter DATA_WIDTH = 8
     )
     (
-        input clk,
-        input rst,
-        input [DATA_WIDTH-1:0] data,
-        input tx_valid,
-        output tx_ready,
-        output TX
+        input logic clk,
+        input logic rst,
+        input logic [DATA_WIDTH-1:0] data,
+        input logic tx_valid,
+        output logic tx_ready,
+        output logic TX
     );
 
 // Temporary values
