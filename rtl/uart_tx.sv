@@ -44,7 +44,7 @@ logic [DATA_WIDTH-1:0] data_shift_reg;
 // AXI Stream Interface
 always_ff @(posedge clk)
     begin
-        if(rst) begin
+        if (rst) begin
             tx_data_temp <= '0;
         end
 
@@ -68,13 +68,12 @@ always @(posedge clk)
             baud_count <= baud_count + 'd1;
     end
 
-
 // Baud tick condition
 assign baud_tick = (baud_count == BAUD_MAX_COUNT-1) ? 1'b1 : 1'b0;
 
 always @(posedge clk)
     begin
-        if(rst) begin
+        if (rst) begin
             data_count <= '0;
             data_shift_reg <= '0;
         end
@@ -159,7 +158,7 @@ always @(*)
 
 always @(posedge clk)
     begin
-        if(rst) begin
+        if (rst) begin
             curr_state <= IDLE;
         end
 
