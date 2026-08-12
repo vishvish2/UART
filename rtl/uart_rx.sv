@@ -8,14 +8,14 @@ module uart_rx
         input logic clk,
         input logic rst,
         input logic RX,
-        input logic rx_ready,
-        output logic rx_valid,
+        input logic m_axis_tready,
+        output logic m_axis_tvalid,
         output logic [DATA_WIDTH-1:0] data,
         output logic frame_err
     );
 
 // Temporary values
-logic rx_valid_temp;
+logic m_axis_tvalid_temp;
 
 // UART states
 typedef enum {IDLE, START, DATA, STOP}  uart_state;
@@ -49,17 +49,17 @@ logic [DATA_WIDTH-1:0] data_shift_reg;
 always_ff @(posedge clk)
     begin
         if (rst) begin
-            rx_valid <= 0;
+            m_axis_tvalid <= 0;
         end
 
-        else if (!rx_valid || rx_ready) begin
-            rx_valid = rx_valid_temp;
+        else if (!m_axis_tvalid || m_axis_tready) begin
+            m_axis_tvalid = m_axis_tvalid_temp;
         end
     end
 
 always_ff @(posedge clk)
     begin
-        if (!rx_valid || rx_ready)
+        if (!m_axis_tvalid || m_axis_tready)
             data = data_shift_reg;
     end
 
@@ -132,7 +132,7 @@ always @(*)
                     else begin
                         next_state = START;
                     end
-                    rx_valid_temp = 1'b0;
+                    m_axis_tvalid_temp = 1'b0;
                     frame_err = 1'b0;
                 end
 
@@ -149,7 +149,7 @@ always @(*)
                     else begin
                         next_state = curr_state;
                     end
-                    rx_valid_temp = 1'b0;
+                    m_axis_tvalid_temp = 1'b0;
                     frame_err = 1'b0;
                 end
 
@@ -162,7 +162,7 @@ always @(*)
                     else begin
                         next_state = curr_state;
                     end
-                    rx_valid_temp = 1'b0;
+                    m_axis_tvalid_temp = 1'b0;
                     frame_err = 1'b0;
                 end
 
@@ -171,12 +171,12 @@ always @(*)
                     if (bit_midpoint) begin
                         if (RX == 1'b1) begin
                             frame_err = 1'b0;
-                            rx_valid_temp = 1'b1;
+                            m_axis_tvalid_temp = 1'b1;
                         end
 
                         else begin
                             frame_err = 1'b1;
-                            rx_valid_temp = 1'b0;   // Frame error, stop bit not constant 1
+                            m_axis_tvalid_temp = 1'b0;   // Frame error, stop bit not constant 1
                         end
                         next_state = IDLE;
                     end
@@ -184,7 +184,7 @@ always @(*)
                     else begin
                         next_state = curr_state;
                         frame_err = 1'b0;
-                        rx_valid_temp = 1'b0;
+                        m_axis_tvalid_temp = 1'b0;
                     end
                 end
 
@@ -192,7 +192,7 @@ always @(*)
                 begin
                     next_state = curr_state;
                     frame_err = 1'b0;
-                    rx_valid_temp = 1'b0;
+                    m_axis_tvalid_temp = 1'b0;
                 end                
         endcase    
     end

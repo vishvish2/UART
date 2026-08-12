@@ -37,8 +37,8 @@ async def uart_rx_tb(dut):
     # VALID should be deasserted, data should default to zeros with no frame error flag
     for _ in range(((data_width + 2) * baud_max_count)):  # number of clock cycles equal to full frame (start, data, stop)
         await RisingEdge(dut.clk)
-        assert dut.rx_valid.value == 0, (
-            f"expected rx_valid = 0, got rx_valid = {dut.rx_valid.value}"
+        assert dut.m_axis_tvalid.value == 0, (
+            f"expected m_axis_tvalid = 0, got m_axis_tvalid = {dut.m_axis_tvalid.value}"
         )
         assert dut.data.value == 0b00000000, (
             f"expected data = 00000000, got data = {dut.data.value}"
@@ -72,8 +72,8 @@ async def uart_rx_tb(dut):
         await RisingEdge(dut.clk)
 
     # Now uart state should be START
-    assert dut.rx_valid.value == 0, (
-        f"expected rx_valid = 0, got rx_valid = {dut.rx_valid.value}"
+    assert dut.m_axis_tvalid.value == 0, (
+        f"expected m_axis_tvalid = 0, got m_axis_tvalid = {dut.m_axis_tvalid.value}"
     )
     assert dut.data.value == 0b00000000, (
         f"expected data = 00000000, got data = {dut.data.value}"
@@ -89,8 +89,8 @@ async def uart_rx_tb(dut):
         await RisingEdge(dut.clk)
 
     # Now uart state should be DATA, but no data should be received on the RX line yet
-    assert dut.rx_valid.value == 0, (
-        f"expected rx_valid = 0, got rx_valid = {dut.rx_valid.value}"
+    assert dut.m_axis_tvalid.value == 0, (
+        f"expected m_axis_tvalid = 0, got m_axis_tvalid = {dut.m_axis_tvalid.value}"
     )
     assert dut.data.value == 0b00000000, (
         f"expected data = 00000000, got data = {dut.data.value}"
@@ -132,10 +132,10 @@ async def uart_rx_tb(dut):
     )
 
     # VALID should be asserted
-    await RisingEdge(dut.clk)   # rx_valid_temp gets recognised
-    await RisingEdge(dut.clk)   # rx_valid updated on next rising edge
-    assert dut.rx_valid.value == 1, (
-        f"expected rx_valid = 1, got rx_valid = {dut.rx_valid.value}"
+    await RisingEdge(dut.clk)   # m_axis_tvalid gets recognised
+    await RisingEdge(dut.clk)   # m_axis_tvalid updated on next rising edge
+    assert dut.m_axis_tvalid.value == 1, (
+        f"expected m_axis_tvalid = 1, got m_axis_tvalid = {dut.m_axis_tvalid.value}"
     )
     assert dut.frame_err.value == 0, (
         f"expected data = 0, got data = {dut.frame_err.value}"
@@ -151,16 +151,16 @@ async def uart_rx_tb(dut):
     )
 
     # Assert READY in AXI Stream interface
-    dut.rx_ready.value = 1
+    dut.m_axis_tready.value = 1
     await RisingEdge(dut.clk)   # READY gets recognised
     await RisingEdge(dut.clk)   # Rising edge after handshake occurs
 
     # VALID should deassert after handshake
-    assert dut.rx_valid_temp.value == 0, (
-        f"expected rx_valid_temp = 0, got rx_valid_temp = {dut.rx_valid_temp.value}"
+    assert dut.m_axis_tvalid_temp.value == 0, (
+        f"expected m_axis_tvalid_temp = 0, got m_axis_tvalid_temp = {dut.m_axis_tvalid_temp.value}"
     )
-    assert dut.rx_valid.value == 0, (
-        f"expected rx_valid = 0, got rx_valid = {dut.rx_valid.value}"
+    assert dut.m_axis_tvalid.value == 0, (
+        f"expected m_axis_tvalid = 0, got m_axis_tvalid = {dut.m_axis_tvalid.value}"
     )
 
     # State should remain IDLE

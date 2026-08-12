@@ -8,8 +8,8 @@ module uart_tx
         input logic clk,
         input logic rst,
         input logic [DATA_WIDTH-1:0] data,
-        input logic tx_valid,
-        output logic tx_ready,
+        input logic s_axis_tvalid,
+        output logic s_axis_tready,
         output logic TX
     );
 
@@ -49,7 +49,7 @@ always_ff @(posedge clk)
         end
 
         else begin
-            if (tx_valid & tx_ready) begin
+            if (s_axis_tvalid & s_axis_tready) begin
                 tx_data_temp <= data;
             end
         end
@@ -100,7 +100,7 @@ always @(*)
         case (curr_state)
             IDLE:
                 begin
-                    if (tx_valid) begin
+                    if (s_axis_tvalid) begin
                         next_state = START;
                     end
 
@@ -168,7 +168,7 @@ always @(posedge clk)
 
     end
 
-assign tx_ready = (curr_state == IDLE) ? 1'b1 : 1'b0;
+assign s_axis_tready = (curr_state == IDLE) ? 1'b1 : 1'b0;
 assign TX = tx_temp;
 
 endmodule
