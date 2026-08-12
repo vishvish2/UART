@@ -16,7 +16,6 @@ module uart_rx
 
 // Temporary values
 logic rx_valid_temp;
-logic [DATA_WIDTH-1:0] data_temp;
 
 // UART states
 typedef enum {IDLE, START, DATA, STOP}  uart_state;
@@ -61,7 +60,7 @@ always_ff @(posedge clk)
 always_ff @(posedge clk)
     begin
         if (!rx_valid || rx_ready)
-            data = data_temp;
+            data = data_shift_reg;
     end
 
 // Baud Clock
@@ -135,7 +134,6 @@ always @(*)
                     end
                     rx_valid_temp = 1'b0;
                     frame_err = 1'b0;
-                    data_temp = '0;
                 end
 
             START:
@@ -153,7 +151,6 @@ always @(*)
                     end
                     rx_valid_temp = 1'b0;
                     frame_err = 1'b0;
-                    data_temp = '0;
                 end
 
             DATA:
@@ -167,7 +164,6 @@ always @(*)
                     end
                     rx_valid_temp = 1'b0;
                     frame_err = 1'b0;
-                    data_temp = '0;
                 end
 
             STOP:
@@ -175,14 +171,12 @@ always @(*)
                     if (bit_midpoint) begin
                         if (RX == 1'b1) begin
                             frame_err = 1'b0;
-                            data_temp = data_shift_reg;
                             rx_valid_temp = 1'b1;
                         end
 
                         else begin
                             frame_err = 1'b1;
                             rx_valid_temp = 1'b0;   // Frame error, stop bit not constant 1
-                            data_temp = '0;
                         end
                         next_state = IDLE;
                     end
@@ -191,7 +185,6 @@ always @(*)
                         next_state = curr_state;
                         frame_err = 1'b0;
                         rx_valid_temp = 1'b0;
-                        data_temp = '0;
                     end
                 end
 
@@ -200,7 +193,6 @@ always @(*)
                     next_state = curr_state;
                     frame_err = 1'b0;
                     rx_valid_temp = 1'b0;
-                    data_temp = '0;
                 end                
         endcase    
     end
