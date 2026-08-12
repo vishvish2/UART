@@ -1,6 +1,13 @@
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
+from enum import IntEnum
+
+class UartState(IntEnum):
+    IDLE  = 0
+    START = 1
+    DATA  = 2
+    STOP  = 3
 
 
 @cocotb.test()
@@ -32,8 +39,8 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 1, (
             f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"
         )
-        assert dut.curr_state.value == 0b00, (
-            f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
+        assert dut.curr_state.value == UartState.IDLE, (
+            f"expected curr_state = {UartState.IDLE}, got tx_ready = {dut.curr_state.value}"
         )
 
     # Test byte
@@ -49,8 +56,8 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 1, (
             f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"
         )
-        assert dut.curr_state.value == 0b00, (
-            f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
+        assert dut.curr_state.value == UartState.IDLE, (
+            f"expected curr_state = {UartState.IDLE}, got tx_ready = {dut.curr_state.value}"
         )
 
     # Assert AXI VALID signal for one clock cycle
@@ -74,8 +81,8 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"  # READY should remain deasserted
         )
-        assert dut.curr_state.value == 0b01, (
-            f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
+        assert dut.curr_state.value == UartState.START, (
+            f"expected curr_state = {UartState.START}, got tx_ready = {dut.curr_state.value}"
         )
 
     # This should be ignored until after IDLE state is reached again
@@ -94,8 +101,8 @@ async def uart_tx_tb(dut):
             assert dut.tx_ready.value == 0, (
                 f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
             )
-            assert dut.curr_state.value == 0b10, (
-                f"expected curr_state = 10, got tx_ready = {dut.curr_state.value}"
+            assert dut.curr_state.value == UartState.DATA, (
+                f"expected curr_state = {UartState.DATA}, got tx_ready = {dut.curr_state.value}"
             )
 
     # UART state should now be STOP for one bit period
@@ -107,8 +114,8 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
         )
-        assert dut.curr_state.value == 0b11, (
-            f"expected curr_state = 11, got tx_ready = {dut.curr_state.value}"
+        assert dut.curr_state.value == UartState.STOP, (
+            f"expected curr_state = {UartState.STOP}, got tx_ready = {dut.curr_state.value}"
         )
 
     # UART state should return to IDLE, TX line held high and READY asserted
@@ -119,9 +126,9 @@ async def uart_tx_tb(dut):
     assert dut.tx_ready.value == 1, (
         f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
     )
-    assert dut.curr_state.value == 0b00, (
-        f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
-    )                                                                   # READY and VALID are 1 simultaneously again
+    assert dut.curr_state.value == UartState.IDLE, (
+        f"expected curr_state = {UartState.IDLE}, got tx_ready = {dut.curr_state.value}"
+    )                                                                 # READY and VALID are 1 simultaneously again
 
     await RisingEdge(dut.clk)
     assert dut.tx_ready.value == 0, (
@@ -139,9 +146,9 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"  # READY should remain deasserted
         )
-        assert dut.curr_state.value == 0b01, (
-            f"expected curr_state = 01, got tx_ready = {dut.curr_state.value}"
-        )                                                                   # READY and VALID are 1 simultaneously again
+        assert dut.curr_state.value == UartState.START, (
+            f"expected curr_state = {UartState.START}, got tx_ready = {dut.curr_state.value}"
+        )                                                                  # READY and VALID are 1 simultaneously again
 
     # UART state should be DATA, compare TX against data, LSB transmits first
     for n in range(data_width):
@@ -154,9 +161,9 @@ async def uart_tx_tb(dut):
             assert dut.tx_ready.value == 0, (
                 f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
             )
-            assert dut.curr_state.value == 0b10, (
-                f"expected curr_state = 10, got tx_ready = {dut.curr_state.value}"
-            ) 
+            assert dut.curr_state.value == UartState.DATA, (
+                f"expected curr_state = {UartState.DATA}, got tx_ready = {dut.curr_state.value}"
+            )
 
     # UART state should now be STOP for one bit period
     for _ in range(baud_max_count):
@@ -167,9 +174,9 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 0, (
             f"expected tx_ready = 0, got tx_ready = {dut.tx_ready.value}"   # READY should remain deasserted
         )
-        assert dut.curr_state.value == 0b11, (
-            f"expected curr_state = 11, got tx_ready = {dut.curr_state.value}"
-        ) 
+        assert dut.curr_state.value == UartState.STOP, (
+            f"expected curr_state = {UartState.STOP}, got tx_ready = {dut.curr_state.value}"
+        )
 
     # UART state should return to IDLE, TX line held high and READY asserted
     for _ in range((data_width * baud_max_count)):  # number of clock cycles equal to data width
@@ -180,6 +187,6 @@ async def uart_tx_tb(dut):
         assert dut.tx_ready.value == 1, (
             f"expected tx_ready = 1, got tx_ready = {dut.tx_ready.value}"   # READY should now be asserted again
         )
-        assert dut.curr_state.value == 0b00, (
-            f"expected curr_state = 00, got tx_ready = {dut.curr_state.value}"
-        ) 
+        assert dut.curr_state.value == UartState.IDLE, (
+            f"expected curr_state = {UartState.IDLE}, got tx_ready = {dut.curr_state.value}"
+        )
