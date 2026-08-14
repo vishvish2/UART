@@ -24,8 +24,6 @@ async def uart_loop_tb(dut):
     lsfr_val = 0b11111111
 
     for _ in range(256):
-        await RisingEdge(dut.clk)
-
         # 8-bit lfsr to generate 8-bit values in pseudorandom order
         feedback = (                    # XOR 8th, 6th, 5th and 4th bits
             ((lsfr_val >> 7) & 1)
