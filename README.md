@@ -21,7 +21,11 @@ All the above modules have an AXI-Stream interface.
 
 The module `rtl/uart_loop` combines the above modules, connecting the TX line from `rtl/uart_tx` to the RX line of `rtl/uart_rx`.
 
+The module `rtl/uart_top` also combines the above modules, but instead sends the TX line to an output port and receiving an RX line from an input port.
+
 ## Vivado FPGA Implentation
+
+The FPGA used is the Artix-7 Nexys A7 board with part number xc7a100tcsg324-1
 
 Below is Vivado's timing analysis with a 100MHz clock input where `rtl/uart_loop.sv` is the top level module.
 ![Timing](img/uart_loop_vivado_timing.png "Timing")
