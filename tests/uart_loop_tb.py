@@ -20,3 +20,11 @@ async def uart_loop_tb(dut):
     await RisingEdge(dut.clk)
     await RisingEdge(dut.clk)
     dut.rst.value = 0
+
+    # Let uart run for a number of clock cycle required for a full frame to transmit
+    for _ in range(((data_width + 2) * baud_max_count)):    # start bit, 8 bit data, stop bit = 10 baud ticks
+        await RisingEdge(dut.clk)
+
+    assert dut.data_out.value == 0b01001010, (
+        f"expected data_out = 01001010, got data_out = {dut.data_out.value}"
+    )
