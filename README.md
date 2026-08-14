@@ -41,5 +41,10 @@ make run_all    # Runs all of the above
 
 The FPGA used is the Artix-7 Nexys A7 board with part number xc7a100tcsg324-1
 
-Below is Vivado's timing analysis with a 100MHz clock input where `rtl/uart_loop.sv` is the top level module.
-![Timing](img/uart_loop_vivado_timing.png "Timing")
+Below is Vivado's timing analysis with a 100MHz clock input 
+
+Where `rtl/uart_loop.sv` is the top level module:
+![uart_loop_timing](img/uart_loop_vivado_timing.png)
+
+Where `rtl/uart_top.sv` is the top level module:
+![uart_top_timing](img/uart_top_vivado_timing.png)
