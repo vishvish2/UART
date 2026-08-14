@@ -53,14 +53,14 @@ always_ff @(posedge clk)
         end
 
         else if (!m_axis_tvalid || m_axis_tready) begin
-            m_axis_tvalid = m_axis_tvalid_temp;
+            m_axis_tvalid <= m_axis_tvalid_temp;
         end
     end
 
 always_ff @(posedge clk)
     begin
         if (!m_axis_tvalid || m_axis_tready)
-            data = data_shift_reg;
+            data <= data_shift_reg;
     end
 
 // Baud Clock
