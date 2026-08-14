@@ -5,19 +5,17 @@ module axis_byte_source
     (
         input logic clk,
         input logic rst,
+        input logic [DATA_WIDTH-1:0] test_byte,
         output logic [DATA_WIDTH-1:0] data,
         output logic m_axis_tvalid,
         input logic m_axis_tready
     );
 
+    // Temporary values
     logic m_axis_tvalid_temp;
-    logic [DATA_WIDTH-1:0] test_byte;
-
-    // Hard coded test byte for simplicity
-    assign test_byte = 8'b01001010;
-    assign data = test_byte;
 
     // Always has valid data for simplicity for testing
+    assign data = test_byte;
     assign m_axis_tvalid_temp = 1'b1;
 
     // AXI Stream Interface

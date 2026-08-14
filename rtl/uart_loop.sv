@@ -5,6 +5,7 @@ module uart_loop
     (
         input logic clk,
         input logic rst,
+        input logic [DATA_WIDTH-1:0] test_byte,
         output logic frame_error,
         output logic [DATA_WIDTH-1:0] data_out
     );
@@ -27,6 +28,7 @@ module uart_loop
     ) u_axis_byte_source (
         .clk(clk),
         .rst(rst),
+        .test_byte(test_byte),
         .data(tx_axis_data),
         .m_axis_tvalid(tx_axis_tvalid),
         .m_axis_tready(tx_axis_tready)
