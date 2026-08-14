@@ -1,11 +1,11 @@
 # UART Controller
 
-This repository contains system verilog code for a UART controller with the following properties.
+This repository contains system verilog code for transmitting and receiving UART frames the following properties.
 - 1 start bit
 - 8-bit data width
 - 1 stop bit
 - No parity bit
-- 115200 baud
+- 115200 baud rate
 
 The data width and baud rate can be customised by modifying the parameters in the modules in `rtl/`
 
