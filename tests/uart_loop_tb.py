@@ -21,19 +21,27 @@ async def uart_loop_tb(dut):
     await RisingEdge(dut.clk)
     dut.rst.value = 0
 
-    expected_data_out_vals = [0b11111111,
-                              0b00000000,
-                              0b01010101,
-                              0b01101011,
-                              0b11011010]
-    for val in expected_data_out_vals:
+    lsfr_val = 0b11111111
+
+    for _ in range(256):
         await RisingEdge(dut.clk)
-        dut.test_byte.value = val
+
+        # 8-bit lfsr to generate 8-bit values in pseudorandom order
+        feedback = (                    # XOR 8th, 6th, 5th and 4th bits
+            ((lsfr_val >> 7) & 1)
+            ^ ((lsfr_val >> 5) & 1)
+            ^ ((lsfr_val >> 4) & 1)
+            ^ ((lsfr_val >> 3) & 1)
+        )
+
+        lsfr_val = ((lsfr_val << 1) & 0xFF) | feedback  # Shift and add feedback bit to LSB
+        expected_data_out = lsfr_val
+        dut.test_byte.value = expected_data_out
 
         # Let uart run for a number of clock cycle required for a full frame to transmit
         for _ in range(((data_width + 2) * baud_max_count)):    # start bit, 8 bit data, stop bit = 10 baud ticks
             await RisingEdge(dut.clk)
 
-        assert dut.data_out.value == val, (
-            f"expected data_out = {val}, got data_out = {dut.data_out.value}"
+        assert dut.data_out.value == expected_data_out, (
+            f"expected data_out = {expected_data_out}, got data_out = {dut.data_out.value}"
         )
