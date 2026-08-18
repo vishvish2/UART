@@ -9,6 +9,8 @@ This repository contains system verilog code for transmitting and receiving UART
 
 The data width and baud rate can be customised by modifying the parameters in the modules in `rtl/`
 
+The code was synthesised in Vivado and could successfully interact with an ESP32 C3 supermini via UART which runs on the arduino code in `arduino/uart_test.ino`.
+
 ## HDL Files
 
 Folder `rtl/` contains the system verilog code
@@ -22,6 +24,8 @@ All the above modules have an AXI-Stream interface.
 The module `rtl/uart_loop` combines the above modules, connecting the TX line from `rtl/uart_tx` to the RX line of `rtl/uart_rx`.
 
 The module `rtl/uart_top` also combines the above modules, but instead sends the TX line to an output port and receiving an RX line from an input port.
+- The TX line transmits 8 bit data represented by the on board DIP switches (SW7-SW0)
+- The RX line receives 8 bit data and represents it on the on board LEDs (LD7-LD0).
 
 ## Testbenches
 
