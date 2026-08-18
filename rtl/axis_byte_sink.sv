@@ -12,7 +12,11 @@ module axis_byte_sink
     );
 
     // Always ready to accept, for simplicity of testing
-    assign s_axis_tready = 1'b1;
+    always_ff @(posedge clk)
+        if (rst)
+            s_axis_tready <= 1'b0;
+        else
+            s_axis_tready <= 1'b1;
   
     always_ff @(posedge clk) begin
         if (rst)

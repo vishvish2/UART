@@ -15,16 +15,25 @@ module axis_byte_source
     logic m_axis_tvalid_temp;
 
     // Always has valid data for simplicity for testing
-    assign data = test_byte;
-    assign m_axis_tvalid_temp = 1'b1;
+    always_ff @(posedge clk)
+        if (rst) begin
+            data <= '0;
+            m_axis_tvalid_temp <= 1'b0;
+        end
+
+        else begin
+            data <= test_byte;
+            m_axis_tvalid_temp <= 1'b1;
+        end
 
     // AXI Stream Interface
-    always_ff @(posedge clk)
+    always_ff @(posedge clk) begin
         if (rst)
             m_axis_tvalid <= 0;
         
         else if (!m_axis_tvalid || m_axis_tready) begin
             m_axis_tvalid <= m_axis_tvalid_temp;
         end
+    end
 
 endmodule
