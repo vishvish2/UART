@@ -9,7 +9,7 @@ void setup() {
 void loop() {
 
   // Send test data
-  Serial1.write(0x43);
+  Serial1.write("C"); // ASCII -> 0x43 (01000011)
   delay(500);
 
   Serial1.write(0xA4);
