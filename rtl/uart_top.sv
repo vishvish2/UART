@@ -22,6 +22,19 @@ module uart_top
     logic rx_axis_tvalid;
     logic rx_axis_tready;
 
+    // 2-FF synchroniser for RX (async input, CDC into clk domain)
+    logic RX_sync_ff1, RX_sync;
+
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            RX_sync_ff1 <= 1'b1;
+            RX_sync     <= 1'b1;
+        end else begin
+            RX_sync_ff1 <= RX;
+            RX_sync     <= RX_sync_ff1;
+        end
+    end
+
     axis_byte_source #(
         .DATA_WIDTH(DATA_WIDTH)
     ) u_axis_byte_source (
@@ -49,7 +62,7 @@ module uart_top
     ) u_uart_rx (
         .clk(clk),
         .rst(rst),
-        .RX(RX),
+        .RX(RX_sync),
         .m_axis_tready(rx_axis_tready),
         .m_axis_tvalid(rx_axis_tvalid),
         .data(rx_axis_data),
